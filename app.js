@@ -1,12 +1,65 @@
 const express=require('express');
+const morgan=require('morgan');
+const mongoose=require('mongoose');
+const Blog=require('./models/blogs')
 //express app
 const app= express();
 
+const dbURI="mongodb+srv://eleena:eleena@blognode.yttzmby.mongodb.net/blog-node?retryWrites=true&w=majority"
+mongoose.connect(dbURI,{useUnifiedTopology: true })
+    .then((result) => app.listen(3000))
+    .catch((err)=> console.log(err));
 //register view engine
 app.set('view engine','ejs');//automaitically looks in views 
 //app.set('views','myviews');//to search in myviews instead
 
-app.listen(3000);
+
+app.use(express.static('public')); //setting up static files location
+app.use(morgan('dev'));
+
+// app.use((req,res,next)=>{
+//     console.log('new req made: ');
+//     console.log('host: ',req.hostname);
+//     console.log('path: ',req.path);
+//     console.log('method: ',req.method);
+//     next();//so we can move down 
+// })
+// app.use((req,res,next)=>{
+//     console.log('next middleware ');
+//     next();//so we can move down 
+// })
+app.get('/add-blog',(req,res)=>{
+    const blog=new Blog({
+        title:'mew Blog',
+        snippet:'hhe',
+        body:'tooooooooooooo'
+    });
+    blog.save()
+        .then((result)=>{
+            res.send(result)
+        })
+        .catch((err)=>{
+            console.log(err);
+        });
+});
+app.get('/all-blogs',(req,res)=>{
+    Blog.find()
+    .then((result)=>{
+        res.send(result);
+    })
+    .catch((err)=>{
+        console.log(err);
+    })
+});
+app.get('/single-blog',(req,res)=>{
+    Blog.findById('')
+        .then((result)=>{
+            res.send(result);
+        })
+        .catch((err)=>{
+            console.log(err);
+        });
+})
 app.get('/',(req,res)=>{
     //res.send('<p> home page</p>');
     //res.sendFile('./views/index.html',{ root:__dirname });//absolute path
